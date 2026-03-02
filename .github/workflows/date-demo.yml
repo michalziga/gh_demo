@@ -1,26 +1,41 @@
-name: Date Demo
+name: Date Logger
 
 on:
-  push:
-    branches:
-      - main
-  workflow_dispatch:
+  schedule:
+    # Runs every 15 minutes
+    - cron: '*/15 * * * *'
+  workflow_dispatch: # Allows manual trigger
 
 jobs:
-  save-date:
+  log-date:
     runs-on: ubuntu-latest
+
     steps:
+      # Checkout repository
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      # Configure Git (needed to commit)
+      - name: Set up Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      # Save current date/time to a file
       - name: Save current date to file
         run: |
-          # Get current date in YYYY-MM-DD format
-          CURRENT_DATE=$(date +'%Y-%m-%d')
-          echo "Current date is: $CURRENT_DATE"
+          # Get current timestamp (YYYY-MM-DD_HH-MM-SS)
+          TIMESTAMP=$(date +'%Y-%m-%d_%H-%M-%S')
+          FILENAME="${TIMESTAMP}.txt"
           
-          # Save the date into a file named with the current date
-          echo "$CURRENT_DATE" > "${CURRENT_DATE}.txt"
+          echo "Current timestamp: $TIMESTAMP" > "$FILENAME"
           
-      - name: List files
-        run: ls -l
+          # Show created file
+          ls -l
+
+      # Commit and push file back to repo
+      - name: Commit and push date file
+        run: |
+          git add *.txt
+          git commit -m "Add date file $FILENAME" || echo "No changes to commit"
+          git push
