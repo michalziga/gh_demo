@@ -1,0 +1,26 @@
+name: Date Demo
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  save-date:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Save current date to file
+        run: |
+          # Get current date in YYYY-MM-DD format
+          CURRENT_DATE=$(date +'%Y-%m-%d')
+          echo "Current date is: $CURRENT_DATE"
+          
+          # Save the date into a file named with the current date
+          echo "$CURRENT_DATE" > "${CURRENT_DATE}.txt"
+          
+      - name: List files
+        run: ls -l
